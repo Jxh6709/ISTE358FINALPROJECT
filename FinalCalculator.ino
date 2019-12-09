@@ -13,11 +13,11 @@ int button = 3; //Digital pin 4
 int num1, num2 = 0;
 String operation = "";
 int result;
-int tempNum;
+int currentNum;
 
 int operationsComplete = 1; //once all three are complete we will display the results
 int binaryResult[24]; // our array that represent what's getting lit
-int buttonState;
+int buttonState; //the current state of the button
 
 void setup() 
 {
@@ -27,18 +27,20 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(button), changeState, FALLING);
   //where would we be without the Serial
   Serial.begin(9600);
-  
+  //start the bar
   LEDbar.begin();
   
-  //initialize all of the values to zero
+  //initialize all of the binary values to zero
   memset(binaryResult,0,sizeof(binaryResult));
   
   //for our random number generation
   randomSeed(analogRead(0));
 }
-
+//listening for when the button is pressed
 void changeState() {
+  //reflect it
   buttonState = 1;
+  //and short delay for dramatic effect
   delay(200);
 }
 
@@ -131,13 +133,13 @@ void loop()
   //2. Get the operand
   //3. The second number and perform the calculation
   //for the numbers, a random will be generated if the number is > 200
-  tempNum = mapToNumber(getLightLevel());
+  currentNum = mapToNumber(getLightLevel());
 
   switch (operationsComplete)
   {
   case 1:
     Serial.println("Turn the dial to generate a number between 0 and 250");
-    if (tempNum < 201) {
+    if (currentNum < 201) {
         Serial.println(mapToNumber(getLightLevel()));
     }
     else {
@@ -151,7 +153,7 @@ void loop()
     break;
   case 3:
     Serial.println("Turn the dial to generate the second number between 0 and 250");
-    if (tempNum < 201) {
+    if (currentNum < 201) {
         Serial.println(mapToNumber(getLightLevel()));
     }
     else {
@@ -169,8 +171,8 @@ void loop()
       switch(operationsComplete) {
         case 1:
           //we are saving the first number and are now going to move to the operand
-          if (tempNum < 201) {
-              num1 = tempNum;
+          if (currentNum < 201) {
+              num1 = currentNum;
           }
           else {
             num1 = random(200);
@@ -186,19 +188,23 @@ void loop()
           break;
         case 3:
           //we are saving the first number and are now going to move to the operand
-          if (tempNum < 201) {
-              num2 = tempNum;
+          if (currentNum < 201) {
+              num2 = currentNum;
           }
           else {
             num2 = random(200);
           }
+          //The acquired values
           Serial.print("You entered "); Serial.print(num1); Serial.print(operation + num2);
           Serial.println();
+          //get ready to reset
           TurnOffLeds();
           Serial.println(getTotal());
+          //set the lights accordingly
           setLightLevel(getBinaryString( abs ( getTotal() ) ) );
+          //go back to step 1
           operationsComplete = 1;
-          //initialize all of the values to zero
+          //initialize all of the binary values to zero
           memset(binaryResult,0,sizeof(binaryResult));
           delay(1000);
           break;
@@ -206,10 +212,13 @@ void loop()
           break;
   
       }
+      //reset the button state
       buttonState = 0;
   } 
 }
-
+/*
+*Based on the operation provided, return the proper calculation
+*/
 int getTotal() {
   if (operation == "*") {
     return num1 * num2;
