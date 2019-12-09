@@ -14,6 +14,7 @@ int num1, num2 = 0;
 String operation = "";
 int result;
 int currentNum;
+long total;
 
 int operationsComplete = 1; //once all three are complete we will display the results
 int binaryResult[24]; // our array that represent what's getting lit
@@ -57,7 +58,7 @@ float getLightLevel()
   return degs;
 }
 
-int * getBinaryString(int num) {
+int * getBinaryString(long num) {
     int index = 0;
     //a basic decimal to binary algorithm,
     while (num > 0) {
@@ -105,9 +106,9 @@ void TurnOffLeds() {
         delay(100);
     }
 }
-//simple function that converts our degrees to a number between 0 and 250
+//simple function that converts our degrees to a number between 0 and 200
 int mapToNumber(float degs) {
-  return map(degs,0,300,0,250);
+  return map(degs,0,300,0,200);
 }
 //a simple function to get our operation from the angle sensor
 String mapToOperation(float degs) {
@@ -132,18 +133,18 @@ void loop()
   //1. Obtain the first number
   //2. Get the operand
   //3. The second number and perform the calculation
-  //for the numbers, a random will be generated if the number is > 200
+  //for the numbers, a random will be generated if the number is > 175
   currentNum = mapToNumber(getLightLevel());
 
   switch (operationsComplete)
   {
   case 1:
-    Serial.println("Turn the dial to generate a number between 0 and 250");
-    if (currentNum < 201) {
+    Serial.println("Turn the dial to generate a number between 0 and 175");
+    if (currentNum < 176) {
         Serial.println(mapToNumber(getLightLevel()));
     }
     else {
-      Serial.println("Random number between 0 and 200");
+      Serial.println("Random number between 0 and 175");
     }
     
     break;
@@ -152,12 +153,12 @@ void loop()
     Serial.println(mapToOperation(getLightLevel()));
     break;
   case 3:
-    Serial.println("Turn the dial to generate the second number between 0 and 250");
-    if (currentNum < 201) {
+    Serial.println("Turn the dial to generate the second number between 0 and 175");
+    if (currentNum < 176) {
         Serial.println(mapToNumber(getLightLevel()));
     }
     else {
-      Serial.println("Random number between 0 and 200");
+      Serial.println("Random number between 0 and 175");
     }
     break;
   default:
@@ -171,11 +172,11 @@ void loop()
       switch(operationsComplete) {
         case 1:
           //we are saving the first number and are now going to move to the operand
-          if (currentNum < 201) {
+          if (currentNum < 176) {
               num1 = currentNum;
           }
           else {
-            num1 = random(200);
+            num1 = random(175);
           }
           operationsComplete++;
           delay(1000);
@@ -188,20 +189,21 @@ void loop()
           break;
         case 3:
           //we are saving the first number and are now going to move to the operand
-          if (currentNum < 201) {
+          if (currentNum < 176) {
               num2 = currentNum;
           }
           else {
-            num2 = random(200);
+            num2 = random(175);
           }
           //The acquired values
           Serial.print("You entered "); Serial.print(num1); Serial.print(operation + num2);
           Serial.println();
           //get ready to reset
           TurnOffLeds();
-          Serial.println(getTotal());
+          total = getTotal();
+          Serial.println(total);
           //set the lights accordingly
-          setLightLevel(getBinaryString( abs ( getTotal() ) ) );
+          setLightLevel(getBinaryString( abs ( total ) ) );
           //go back to step 1
           operationsComplete = 1;
           //initialize all of the binary values to zero
@@ -219,7 +221,7 @@ void loop()
 /*
 *Based on the operation provided, return the proper calculation
 */
-int getTotal() {
+long getTotal() {
   if (operation == "*") {
     return num1 * num2;
   }
