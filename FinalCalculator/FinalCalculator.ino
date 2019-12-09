@@ -7,7 +7,7 @@
 #include <Grove_LED_Bar.h>
 
 Grove_LED_Bar LEDbar(6, 7, 0,LED_CIRCULAR_24); // clock pin D6, data pin, orientation
-int button = 3; //Digital pin 4
+int button = 3; //Digital pin 3
 
 //the basis of our calculator
 int num1, num2 = 0;
